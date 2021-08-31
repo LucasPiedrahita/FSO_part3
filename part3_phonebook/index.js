@@ -28,15 +28,27 @@ app.get("/", (request, response) => {
   response.send("<h1>Hello World!</h1>")
 })
 
-app.get("/api/contacts", (request, response) => {
-  response.json(contacts)
-})
-
 app.get("/info", (request, response) => {
   response.send(`
   <p>Phonebook has info for ${contacts.length} people</p>
   <p>Request processed at ${new Date()}</p>
   `)
+})
+
+app.get("/api/contacts", (request, response) => {
+  response.json(contacts)
+})
+
+app.get("/api/contacts/:id", (request, response) => {
+  const id = Number(request.params.id)
+  const contact = contacts.find(contact => contact.id === id)
+  if (contact) {
+    console.log("if");
+    response.json(contact)
+  } else {
+    console.log("else");
+    response.status(404).end()
+  }
 })
 
 const PORT = 3001
