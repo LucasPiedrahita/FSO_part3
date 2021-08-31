@@ -1,6 +1,8 @@
 const express = require("express")
 const app = express()
 
+app.use(express.json())
+
 let contacts = [
   { 
     "id": 1,
@@ -51,7 +53,36 @@ app.get("/api/contacts/:id", (request, response) => {
   }
 })
 
+app.delete("/api/contacts/:id", (request, response) => {
+  const id = Number(request.params.id)
+  contacts = contacts.filter(contact => contact.id !== id)
+
+  response.status(204).end()
+})
+
+const generateId = () => {
+  let id = Math.floor(Math.random() * 10000000 + 1)
+  while (contacts.find(contact => contact.id === id)) {
+    id = Math.floor(Math.random() * 10000000 + 1)
+  }
+  return id
+}
+
+app.post("/api/contacts", (request, response) => {
+  const body = request.body
+  
+  const contact = {
+    id: generateId(),
+    name: body.name,
+    number: body.number
+  }
+
+  contacts = [...contacts, contact]
+  response.json(contact)
+})
+
 const PORT = 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
+
