@@ -70,7 +70,22 @@ const generateId = () => {
 
 app.post("/api/contacts", (request, response) => {
   const body = request.body
-  
+  if (!body.name) {
+    return response.status(400).json({
+      error: "name of contact missing"
+    })
+  }
+  if (!body.number) {
+    return response.status(400).json({
+      error: "number of contact missing"
+    })
+  }
+  if (contacts.find(c => c.name === body.name)) {
+    return response.status(400).json({
+      error: "name must be unique"
+    })
+  }
+
   const contact = {
     id: generateId(),
     name: body.name,
@@ -80,7 +95,7 @@ app.post("/api/contacts", (request, response) => {
   contacts = [...contacts, contact]
   response.json(contact)
 })
-
+  
 const PORT = 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
