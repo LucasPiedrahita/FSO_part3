@@ -3,7 +3,16 @@ const morgan = require("morgan")
 const app = express()
 
 app.use(express.json())
-app.use(morgan("dev"))
+
+// Configure logging with morgan
+morgan.token('post-request-data', (req, res) => {
+  if (req.method === "POST") {
+      return JSON.stringify(req.body)
+  }
+  return "-"
+})
+app.use(morgan(":method :url :status :res[content-length] - :response-time ms :post-request-data")
+)
 
 
 let contacts = [
