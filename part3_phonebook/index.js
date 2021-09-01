@@ -1,7 +1,10 @@
 const express = require("express")
+const morgan = require("morgan")
 const app = express()
 
 app.use(express.json())
+app.use(morgan("dev"))
+
 
 let contacts = [
   { 
@@ -45,10 +48,8 @@ app.get("/api/contacts/:id", (request, response) => {
   const id = Number(request.params.id)
   const contact = contacts.find(contact => contact.id === id)
   if (contact) {
-    console.log("if");
     response.json(contact)
   } else {
-    console.log("else");
     response.status(404).end()
   }
 })
@@ -95,7 +96,7 @@ app.post("/api/contacts", (request, response) => {
   contacts = [...contacts, contact]
   response.json(contact)
 })
-  
+
 const PORT = 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
