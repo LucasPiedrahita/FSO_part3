@@ -44,9 +44,9 @@ const App = () => {
           }, 4000);
         })
         .catch(error => {
-          console.log(error)
+          console.log(error.response.data)
           setNotification({ 
-            message: `${error}. Could not add '${newContact.name}' to phonebook.`, 
+            message: `${JSON.stringify(error.response.data)}`, 
             type: "error" 
           });
           setTimeout(() => {
@@ -76,11 +76,9 @@ const App = () => {
           }, 4000);
         })
         .catch(error => {
-          setContacts(
-            contacts.filter(contact => contact.id !== contactToRemove.id)
-          )
+          console.log(error.response.data)
           setNotification({ 
-            message: `Contact info for '${contactToRemove.name}' has already been removed from the server`, 
+            message: `${JSON.stringify(error.response.data)}`, 
             type: "error" 
           });
           setTimeout(() => {
@@ -109,6 +107,16 @@ const App = () => {
           setNotification({ 
             message: `Updated number for '${returnedContact.name}' to '${returnedContact.number}'`, 
             type: "success" 
+          });
+          setTimeout(() => {
+            setNotification({ message: null, type: null })
+          }, 4000);
+        })
+        .catch(error => {
+          console.log(error.response.data)
+          setNotification({ 
+            message: `${JSON.stringify(error.response.data)}`, 
+            type: "error" 
           });
           setTimeout(() => {
             setNotification({ message: null, type: null })

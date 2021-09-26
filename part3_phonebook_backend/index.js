@@ -17,8 +17,7 @@ morgan.token('post-request-data', (req, res) => {
   }
   return "-"
 })
-app.use(morgan(":method :url :status :res[content-length] - :response-time ms :post-request-data")
-)
+app.use(morgan(":method :url :status :res[content-length] - :response-time ms :post-request-data"))
 
 app.get("/info", (request, response, next) => {
   Contact.count()
@@ -59,40 +58,30 @@ app.delete("/api/contacts/:id", (request, response, next) => {
 
 app.post("/api/contacts", (request, response, next) => {
   const body = request.body
-  if (!body.name) {
-    return response.status(400).json({
-      error: "name of contact missing"
-    })
-  }
-  if (!body.number) {
-    return response.status(400).json({
-      error: "number of contact missing"
-    })
-  }
-
   const contact = new Contact({
     name: body.name,
     number: body.number,
   })
-  contact.save().then(savedContact => {
-    response.json(savedContact)
-  })
+  contact.save()
+    .then(savedContact => {
+      response.json(savedContact)
+    })
+    .catch(error => next(error))
 })
 
 app.put("/api/contacts/:id", (request, response, next) => {
   const body = request.body
-  if (!body.number) {
-    return response.status(400).json({
-      error: "number of contact missing"
-    })
-  }
+  // if (!body.number) {
+  //   return response.status(400).json({error: "number of contact missing"})
+  // }
   
   const contact = {
     name: body.name,
     number: body.number
   }
 
-  Contact.findByIdAndUpdate(request.params.id, contact, {new: true})
+  const opts = { runValidators: true, new: true }
+  Contact.findByIdAndUpdate(request.params.id, contact, opts)
     .then(updatedNote => {
       response.json(updatedNote)
     })
@@ -106,8 +95,12 @@ app.use(unknownEndpoint)
 
 const errorHandler = (error, request, response, next) => {
   console.error(error.message)
+  
   if (error.name === 'CastError') {
-    return response.status(400).send({error: 'malformed id'})
+    return response.status(400).send({ error: 'malformed id' })
+  }
+  if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
   }
   next(error)
 }

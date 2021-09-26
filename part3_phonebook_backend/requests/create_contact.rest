@@ -31,3 +31,21 @@ Content-Type: application/json
   "name": "Lucas Piedrahita", 
   "number": "9192743568"
 }
+
+### Expect 400: name must have at least 3 characters
+POST http://localhost:3001/api/contacts
+Content-Type: application/json
+
+{ 
+  "name": "LP", 
+  "number": "9192743568"
+}
+
+### Expect 400: number must have at least 8 characters
+POST http://localhost:3001/api/contacts
+Content-Type: application/json
+
+{ 
+  "name": "Lucas P", 
+  "number": "919"
+}
