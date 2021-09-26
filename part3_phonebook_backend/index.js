@@ -56,7 +56,9 @@ app.get("/info", (request, response) => {
 })
 
 app.get("/api/contacts", (request, response) => {
-  response.json(contacts)
+  Contact.find({}).then(contacts => {
+    response.json(contacts)
+  })
 })
 
 app.get("/api/contacts/:id", (request, response) => {
