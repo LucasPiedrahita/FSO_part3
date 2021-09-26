@@ -20,39 +20,15 @@ morgan.token('post-request-data', (req, res) => {
 app.use(morgan(":method :url :status :res[content-length] - :response-time ms :post-request-data")
 )
 
-
-let contacts = [
-  { 
-    "id": 1,
-    "name": "Arto Hellas", 
-    "number": "040-123456"
-  },
-  { 
-    "id": 2,
-    "name": "Ada Lovelace", 
-    "number": "39-44-5323523"
-  },
-  { 
-    "id": 3,
-    "name": "Dan Abramov", 
-    "number": "12-43-234345"
-  },
-  { 
-    "id": 4,
-    "name": "Mary Poppendieck", 
-    "number": "39-23-6423122"
-  }
-]
-
-app.get("/", (request, response) => {
-  response.send("<h1>Hello World!</h1>")
-})
-
-app.get("/info", (request, response) => {
-  response.send(`
-  <p>Phonebook has info for ${contacts.length} people</p>
-  <p>Request processed at ${new Date()}</p>
-  `)
+app.get("/info", (request, response, next) => {
+  Contact.count()
+    .then(result => {
+      response.send(`
+        <p>Phonebook has info for ${result} people</p>
+        <p>Request processed at ${new Date()}</p>
+      `)
+    })
+    .catch(error => next(error))
 })
 
 app.get("/api/contacts", (request, response) => {
@@ -61,14 +37,16 @@ app.get("/api/contacts", (request, response) => {
   })
 })
 
-app.get("/api/contacts/:id", (request, response) => {
-  const id = Number(request.params.id)
-  const contact = contacts.find(contact => contact.id === id)
-  if (contact) {
-    response.json(contact)
-  } else {
-    response.status(404).end()
-  }
+app.get("/api/contacts/:id", (request, response, next) => {
+  Contact.findById(request.params.id)
+    .then(contact => {
+      if (contact) {
+        response.json(contact)
+      } else {
+        response.status(404).end()
+      }
+    })
+    .catch(error => next(error))
 })
 
 app.delete("/api/contacts/:id", (request, response, next) => {
@@ -92,24 +70,13 @@ app.post("/api/contacts", (request, response, next) => {
     })
   }
 
-  // Check if name is in phonebook before adding a new contact
-  Contact.findOne({ name: body.name })
-    .then(result => {
-      if (result) { 
-        return response.status(400).json({
-          error: "name must be unique"
-        })
-      }
-
-      const contact = new Contact({
-        name: body.name,
-        number: body.number,
-      })
-      contact.save().then(savedContact => {
-        response.json(savedContact)
-      })
-    })
-    .catch(error => next(error))
+  const contact = new Contact({
+    name: body.name,
+    number: body.number,
+  })
+  contact.save().then(savedContact => {
+    response.json(savedContact)
+  })
 })
 
 app.put("/api/contacts/:id", (request, response, next) => {
