@@ -1,8 +1,10 @@
 // TODO: Figure out why app crashes in heroku
+require('dotenv').config()
 const express = require("express")
 const morgan = require("morgan")
 const cors = require("cors")
 const app = express()
+const Contact = require('./models/contact')
 
 app.use(express.static('build'))
 app.use(cors())
@@ -139,7 +141,7 @@ const unknownEndpoint = (request, response) => {
 
 app.use(unknownEndpoint)
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })

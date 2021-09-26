@@ -1,16 +1,12 @@
+require('dotenv').config()
 const mongoose = require('mongoose')
 
-if (process.argv.length < 3) {
-  console.log('Please provide the password as an argument:\nnode mongo.js <password>')
-  process.exit(1)
-}
-if (process.argv.length > 5 || process.argv.length === 4) {
-  console.log(`Unexpected number of arguments (${process.argv.length}).\nIf you are trying to add a contact, please provide the arguments:\nnode mongo.js <password> <name> <number>`)
+if (process.argv.length > 4 || process.argv.length === 3) {
+  console.log(`Unexpected number of arguments (${process.argv.length}).\nIf you are trying to add a contact, please provide the arguments:\nnode mongo.js <name> <number>`)
   process.exit(1)
 }
 
-const password = process.argv[2]
-const url = `mongodb+srv://fso-editor:${password}@fsopart3.gy2bt.mongodb.net/phonebook-app?retryWrites=true&w=majority`
+const url = process.env.MONGODB_URI
 mongoose.connect(url)
 
 const contactSchema = new mongoose.Schema({
@@ -20,7 +16,7 @@ const contactSchema = new mongoose.Schema({
 
 const Contact = mongoose.model('Contact', contactSchema)
 
-if (process.argv.length === 3) {
+if (process.argv.length === 2) {
   console.log("All contacts:")
   Contact
     .find({})
@@ -32,9 +28,9 @@ if (process.argv.length === 3) {
     })
 }
 
-if (process.argv.length === 5) {
-  const name = process.argv[3]
-  const number = process.argv[4]
+if (process.argv.length === 4) {
+  const name = process.argv[2]
+  const number = process.argv[3]
   const contact = new Contact({
     name,
     number,
