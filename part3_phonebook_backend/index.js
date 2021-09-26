@@ -78,14 +78,6 @@ app.delete("/api/contacts/:id", (request, response) => {
   response.status(204).end()
 })
 
-const generateId = () => {
-  let id = Math.floor(Math.random() * 10000000 + 1)
-  while (contacts.find(contact => contact.id === id)) {
-    id = Math.floor(Math.random() * 10000000 + 1)
-  }
-  return id
-}
-
 app.post("/api/contacts", (request, response) => {
   const body = request.body
   if (!body.name) {
