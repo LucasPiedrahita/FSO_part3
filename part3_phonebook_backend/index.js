@@ -71,11 +71,12 @@ app.get("/api/contacts/:id", (request, response) => {
   }
 })
 
-app.delete("/api/contacts/:id", (request, response) => {
-  const id = Number(request.params.id)
-  contacts = contacts.filter(contact => contact.id !== id)
-
-  response.status(204).end()
+app.delete("/api/contacts/:id", (request, response, next) => {
+  Contact.findByIdAndRemove(request.params.id)
+  .then(result => {
+    response.status(204).end()
+  })
+  .catch(error => console.log(error))
 })
 
 app.post("/api/contacts", (request, response) => {
