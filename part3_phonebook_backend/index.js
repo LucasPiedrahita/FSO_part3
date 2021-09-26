@@ -73,13 +73,13 @@ app.get("/api/contacts/:id", (request, response) => {
 
 app.delete("/api/contacts/:id", (request, response, next) => {
   Contact.findByIdAndRemove(request.params.id)
-  .then(result => {
-    response.status(204).end()
-  })
-  .catch(error => console.log(error))
+    .then(result => {
+      response.status(204).end()
+    })
+    .catch(error => next(error))
 })
 
-app.post("/api/contacts", (request, response) => {
+app.post("/api/contacts", (request, response, next) => {
   const body = request.body
   if (!body.name) {
     return response.status(400).json({
@@ -109,39 +109,42 @@ app.post("/api/contacts", (request, response) => {
         response.json(savedContact)
       })
     })
-    .catch((error) => {
-      console.log(error);
-    })
+    .catch(error => next(error))
 })
 
-app.put("/api/contacts/:id", (request, response) => {
+app.put("/api/contacts/:id", (request, response, next) => {
   const body = request.body
-  const id = Number(request.params.id)
   if (!body.number) {
     return response.status(400).json({
       error: "number of contact missing"
     })
   }
   
-  contacts = contacts.map(contact => {
-    if (id === contact.id) {
-      return {
-        id: contact.id,
-        name: contact.name,
-        number: body.number
-      }
-    }
-    return contact
-  })
+  const contact = {
+    name: body.name,
+    number: body.number
+  }
 
-  response.json(body)
+  Contact.findByIdAndUpdate(request.params.id, contact, {new: true})
+    .then(updatedNote => {
+      response.json(updatedNote)
+    })
+    .catch(error => next(error))
 })
 
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
 }
-
 app.use(unknownEndpoint)
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+  if (error.name === 'CastError') {
+    return response.status(400).send({error: 'malformed id'})
+  }
+  next(error)
+}
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
