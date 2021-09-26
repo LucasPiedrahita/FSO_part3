@@ -98,20 +98,27 @@ app.post("/api/contacts", (request, response) => {
       error: "number of contact missing"
     })
   }
-  if (contacts.find(c => c.name === body.name)) {
-    return response.status(400).json({
-      error: "name must be unique"
+
+  // Check if name is in phonebook before adding a new contact
+  Contact.findOne({ name: body.name })
+    .then(result => {
+      if (result) { 
+        return response.status(400).json({
+          error: "name must be unique"
+        })
+      }
+
+      const contact = new Contact({
+        name: body.name,
+        number: body.number,
+      })
+      contact.save().then(savedContact => {
+        response.json(savedContact)
+      })
     })
-  }
-
-  const contact = {
-    id: generateId(),
-    name: body.name,
-    number: body.number
-  }
-
-  contacts = [...contacts, contact]
-  response.json(contact)
+    .catch((error) => {
+      console.log(error);
+    })
 })
 
 app.put("/api/contacts/:id", (request, response) => {
