@@ -1,5 +1,6 @@
-import axios from "axios";
-const baseUrl = "/api/contacts";
+import axios from 'axios';
+
+const baseUrl = '/api/contacts';
 
 const getAll = () => {
   const request = axios.get(baseUrl);
@@ -14,12 +15,12 @@ const create = (newObject) => {
 const remove = (id) => {
   const request = axios.delete(`${baseUrl}/${id}`);
   return request;
-}
+};
 
 const update = (updatedObject) => {
-  const request = axios.put(`${baseUrl}/${updatedObject.id}`, updatedObject)
+  const request = axios.put(`${baseUrl}/${updatedObject.id}`, updatedObject);
   return request.then((response) => response.data);
-}
+};
 
 const services = { getAll, create, remove, update };
 
